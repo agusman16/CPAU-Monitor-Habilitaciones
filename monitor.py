@@ -92,7 +92,6 @@ if columna_barrio in df_filtrado.columns:
     barrios_seleccionados = st.sidebar.multiselect("Filtrar por Barrio:", options=barrios_disponibles)
     if barrios_seleccionados:
         df_filtrado = df_filtrado[df_filtrado[columna_barrio].isin(barrios_seleccionados)]
-
 # 4. Cuadrantes numericos superiores
 metrica_total, metrica_rubros, metrica_zonas = st.columns(3)
 
@@ -115,7 +114,7 @@ with metrica_zonas:
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# 5. CORRECCIÓN CRÍTICA: Se añade el argumento 2 para definir las columnas en paralelo (Formato 16:9 PC)
+# 5. Distribucion en columnas proporcionales (16:9 PC)
 col_mapa, col_graficos = st.columns(2)
 
 with col_mapa:
@@ -126,14 +125,15 @@ with col_mapa:
         
         m = folium.Map(location=centro_mapa, zoom_start=zoom_inicial, tiles="cartodbpositron")
         
+        # --- PALETA DE ALTO CONTRASTE CORREGIDA ---
         colores_rubros = {
-            "1. Comercio Minorista de Cercania": "blue",
-            "2. Gastronomia y Alimentacion": "orange",
-            "3. Servicios Profesionales y Oficinas": "purple",
-            "4. Salud y Estetiva": "green",
-            "5. Esparcimiento, Cultura y Deporte": "pink",
-            "6. Industria y Deposito": "red",
-            "7. Educacion, ciencia y tecnologia": "cadetblue"
+            "1. Comercio Minorista de Cercanía": "#1f77b4",       # Azul nitido
+            "2. Gastronomía y Alimentación": "#ff7f0e",          # Naranja brillante
+            "3. Servicios Profesionales y Oficinas": "#9467bd",  # Violeta oscuro
+            "4. Salud y Estética": "#2ca02c",                    # Verde esmeralda (Corregido)
+            "5. Esparcimiento, Cultura y Deporte": "#e377c2",    # Rosa fuerte
+            "6. Industria y Depósito": "#d62728",                # Rojo carmin
+            "7. Educación, ciencia y tecnología": "#17becf"      # Turquesa/Cian
         }
         
         limite_puntos = min(1000, len(df_filtrado))
@@ -141,9 +141,9 @@ with col_mapa:
         
         for _, fila in df_mapa.iterrows():
             rubro_actual = fila.get('rubros', 'Desconocido')
-            color_punto = colores_rubros.get(rubro_actual, "gray")
+            color_punto = colores_rubros.get(rubro_actual, "#7f7f7f")
             
-            texto_popup = f"<b>Rubro:</b> {rubro_actual}<br><b>Tramite:</b> {fila.get('descripcion_rubro', 'S/D')}<br><b>Ano:</b> {fila.get('ano_habilitacion', 'S/D')}"
+            texto_popup = f"<b>Rubro:</b> {rubro_actual}<br><b>Tramite:</b> {fila.get('descripcion_rubro', 'S/D')}<br><b>Año:</b> {fila.get('ano_habilitacion', 'S/D')}"
             
             folium.CircleMarker(
                 location=[float(fila['latitud']), float(fila['longitud'])],
@@ -152,7 +152,7 @@ with col_mapa:
                 color=color_punto,
                 fill=True,
                 fill_color=color_punto,
-                fill_opacity=0.6,
+                fill_opacity=0.75,
                 weight=1
             ).add_to(m)
         
@@ -163,7 +163,6 @@ with col_mapa:
 with col_graficos:
     st.markdown("### 📊 Indicadores Estadisticos")
     
-    # Grafico A: Evolucion Temporal (Altura de 230px para formato PC)
     if 'ano_habilitacion' in df_filtrado.columns and len(df_filtrado) > 0:
         conteo_anos = df_filtrado['ano_habilitacion'].value_counts().reset_index()
         conteo_anos.columns = ['Ano', 'Cantidad']
@@ -173,17 +172,19 @@ with col_graficos:
         fig_lineas.update_layout(height=230, margin=dict(l=10, r=10, t=15, b=10), xaxis_title=None, yaxis_title=None)
         st.plotly_chart(fig_lineas, width='stretch')
 
-    # Grafico B: Distribucion de Rubros (Altura de 230px para formato PC)
     if 'rubros' in df_filtrado.columns and len(df_filtrado) > 0:
         conteo_rubros = df_filtrado['rubros'].value_counts().reset_index()
         conteo_rubros.columns = ['Categoria', 'Cantidad']
+        
         fig_barras = px.bar(conteo_rubros.sort_values(by='Categoria'), x='Cantidad', y='Categoria', orientation='h', text='Cantidad',
-                            color='Categoria', color_discrete_sequence=px.colors.qualitative.Prism, template="plotly_white")
+                            color='Categoria', 
+                            color_discrete_map=colores_rubros,
+                            template="plotly_white")
         fig_barras.update_traces(textposition="outside")
         fig_barras.update_layout(showlegend=False, height=230, margin=dict(l=10, r=10, t=15, b=10), xaxis_title=None, yaxis_title=None, yaxis={'categoryorder':'category descending'})
         st.plotly_chart(fig_barras, width='stretch')
 
-# 6. Matriz Comparativa Territorial (Fila inferior expansible)
+# 6. Matriz Comparativa Territorial
 if columna_barrio in df_filtrado.columns and 'rubros' in df_filtrado.columns and len(df_filtrado) > 0:
     st.markdown("---")
     with st.expander("🏢 Ver Matriz y Perfil Comparativo por Barrio (Análisis de Suelo)"):
@@ -193,7 +194,8 @@ if columna_barrio in df_filtrado.columns and 'rubros' in df_filtrado.columns and
         
         fig_apilado = px.bar(
             df_cruzado_filtrado, x=columna_barrio, y='Cantidad', color='rubros',
-            color_discrete_sequence=px.colors.qualitative.Prism, template="plotly_white"
+            color_discrete_map=colores_rubros,
+            template="plotly_white"
         )
         fig_apilado.update_layout(barmode='stack', height=350, xaxis={'categoryorder':'total descending'}, legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
         st.plotly_chart(fig_apilado, width='stretch')
