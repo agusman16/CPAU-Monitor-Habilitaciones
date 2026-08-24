@@ -24,13 +24,13 @@ st.title("📊 Monitor de Habilitaciones Comerciales CPAU (CABA)")
 st.caption("Análisis interactivo de dinámicas comerciales del tejido urbano | Período 2019 - 2024")
 st.markdown("---")
 
-# 2. Carga optimizada de la base de datos limpia
+# 2. Carga optimizada de la base de datos limpia desde el entorno online
 @st.cache_data
 def cargar_datos_limpios():
-    ruta_csv = r"C:\Users\Usuario\Documents\CPAU\Habilitaciones CABA\HA_19-24_PROCESADO.csv"
+    # Al estar online, buscamos el archivo directamente por su nombre en el repositorio
+    ruta_csv = "HA_19-24_PROCESADO.csv" 
     data = pd.read_csv(ruta_csv, sep=';', encoding='utf-8-sig', dtype=str)
     
-    # Tratamiento de formatos numéricos y temporales mínimos para los gráficos
     if 'ano_habilitacion' in data.columns:
         data['ano_habilitacion'] = data['ano_habilitacion'].astype(str).str.replace('.0', '', regex=False)
         data = data[data['ano_habilitacion'] != '<NA>']
