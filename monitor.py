@@ -43,8 +43,8 @@ def cargar_y_proyectar_datos():
 df = cargar_y_proyectar_datos()
 
 # Búsqueda automatizada de columnas geográficas en tu CSV
-columna_barrio = next((c for c in df.columns if 'barrio' in c.lower()), None)
-columna_comuna = next((c for c in df.columns if 'comuna' in c.lower()), None)
+columna_barrio = "BARRIO"
+columna_comuna = "COMUNA"
 
 # 3. Estructuración jerárquica de filtros en la Barra Lateral
 st.sidebar.header("Filtros Temporales y Temáticos")
