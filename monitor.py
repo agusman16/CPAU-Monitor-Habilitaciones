@@ -115,8 +115,8 @@ with metrica_zonas:
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# 5. Distribucion en columnas proporcionales (Ideal para formato 16:9 en escritorio)
-col_mapa, col_graficos = st.columns()
+# 5. CORRECCIÓN CRÍTICA: Se añade el argumento 2 para definir las columnas en paralelo (Formato 16:9 PC)
+col_mapa, col_graficos = st.columns(2)
 
 with col_mapa:
     st.markdown("### 📍 Mapa de Distribucion Territorial")
@@ -163,7 +163,7 @@ with col_mapa:
 with col_graficos:
     st.markdown("### 📊 Indicadores Estadisticos")
     
-    # Grafico A: Evolucion Temporal (Altura ampliada a 230px para mayor legibilidad)
+    # Grafico A: Evolucion Temporal (Altura de 230px para formato PC)
     if 'ano_habilitacion' in df_filtrado.columns and len(df_filtrado) > 0:
         conteo_anos = df_filtrado['ano_habilitacion'].value_counts().reset_index()
         conteo_anos.columns = ['Ano', 'Cantidad']
@@ -173,7 +173,7 @@ with col_graficos:
         fig_lineas.update_layout(height=230, margin=dict(l=10, r=10, t=15, b=10), xaxis_title=None, yaxis_title=None)
         st.plotly_chart(fig_lineas, width='stretch')
 
-    # Grafico B: Distribucion de Rubros (Altura ampliada a 230px con textos comodos)
+    # Grafico B: Distribucion de Rubros (Altura de 230px para formato PC)
     if 'rubros' in df_filtrado.columns and len(df_filtrado) > 0:
         conteo_rubros = df_filtrado['rubros'].value_counts().reset_index()
         conteo_rubros.columns = ['Categoria', 'Cantidad']
