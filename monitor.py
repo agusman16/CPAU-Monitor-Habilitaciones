@@ -134,7 +134,7 @@ with col_der:
             template="plotly_white"
         )
         fig_barras.update_traces(textposition="outside")
-        fig_barras.update_layout(showlegend=False, yaxis={'categoryorder':'descending'})
+        fig_barras.update_layout(showlegend=False, yaxis={'categoryorder':'category descending'})
         st.plotly_chart(fig_barras, use_container_width=True)
     else:
         st.info("Selecciona al menos una categoría de rubro en la barra lateral.")
